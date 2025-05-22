@@ -1,15 +1,17 @@
-"use client"; 
-import { useEffect, useState } from "react";
+"use client"; // Esta línea le dice a Next.js que este componente se ejecuta en el navegador (lado cliente)
+import { useEffect, useState } from "react"; // Importamos los hooks que necesitamos de React
 
-// Componente principal
+// Este es nuestro componente principal - es como una función que devuelve lo que se ve en la página
 export default function Page() {
+ // useState es como una caja donde guardamos información que puede cambiar
+ // En este caso, creamos una lista de productos con toda su información
  const [productos] = useState([
   {
-    id: 1,
-    nombre: ' BOSS White Sneakers',
-    precio: 80000,
-    imagen: '/images/BOSS White Sneakers.jpeg',
-    categoria: 'Dama',
+    id: 1, // Número único para identificar cada producto
+    nombre: ' BOSS White Sneakers', // El nombre del producto
+    precio: 80000, // Cuánto cuesta
+    imagen: '/images/BOSS White Sneakers.jpeg', // Dónde está guardada la foto
+    categoria: 'Dama', // Si es para mujeres o hombres
     descripcion: 'Elegancia deportiva en su máxima expresión. Estos tenis BOSS combinan diseño moderno, materiales de alta calidad y una estética limpia ideal para quienes saben que el estilo está en los detalles.'
   },
   {
@@ -87,106 +89,137 @@ export default function Page() {
 
 ]);
 
-  const [carrito, setCarrito] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
-  const [usuarioActual, setUsuarioActual] = useState(null);
-  const [productosFiltrados, setProductosFiltrados] = useState(productos);
-  const [filtro, setFiltro] = useState("todos");
-  const [busqueda, setBusqueda] = useState("");
-  const [comentarios, setComentarios] = useState([]);
-  const [comentarioInput, setComentarioInput] = useState("");
-  const [userInput, setUserInput] = useState("");
-  const [passInput, setPassInput] = useState("");
+  // Aquí creamos más "cajitas" para guardar información que va cambiando:
+  const [carrito, setCarrito] = useState([]); // Lista de productos que el usuario quiere comprar
+  const [usuarios, setUsuarios] = useState([]); // Lista de todos los usuarios registrados
+  const [usuarioActual, setUsuarioActual] = useState(null); // El usuario que está conectado ahora (null = nadie)
+  const [productosFiltrados, setProductosFiltrados] = useState(productos); // Los productos que se muestran después de filtrar
+  const [filtro, setFiltro] = useState("todos"); // Qué categoría está seleccionada ("todos", "Dama", "Caballero")
+  const [busqueda, setBusqueda] = useState(""); // Lo que el usuario escribió en la caja de búsqueda
+  const [comentarios, setComentarios] = useState([]); // Lista de comentarios que escriben los usuarios
+  const [comentarioInput, setComentarioInput] = useState(""); // Lo que está escribiendo el usuario en el comentario
+  const [userInput, setUserInput] = useState(""); // El nombre de usuario que está escribiendo
+  const [passInput, setPassInput] = useState(""); // La contraseña que está escribiendo
 
+  // useEffect es como decir "cuando algo cambie, haz esto"
+  // En este caso, cuando cambien el filtro o la búsqueda, aplicar los filtros
   useEffect(() => {
-    aplicarBusqueda();
-  }, [filtro, busqueda]);
+    aplicarBusqueda(); // Llamamos a la función que filtra los productos
+  }, [filtro, busqueda]); // Solo se ejecuta cuando cambien estas dos cosas
 
+  // Función para iniciar sesión
   const login = () => {
+    // Buscar en la lista de usuarios si existe uno con el nombre y contraseña que escribió
     const user = usuarios.find(
       u => u.usuario === userInput && u.contraseña === passInput
     );
     if (user) {
+      // Si encontramos el usuario, lo guardamos como usuario actual
       setUsuarioActual(user);
     } else {
+      // Si no lo encontramos, mostramos un mensaje de error
       alert("Usuario o contraseña incorrectos.");
     }
   };
 
+  // Función para registrar un nuevo usuario
   const register = () => {
+    // Verificamos que haya escrito algo en ambas cajas
     if (userInput && passInput) {
+      // Agregamos el nuevo usuario a la lista (... significa "todos los que ya estaban")
       setUsuarios([...usuarios, { usuario: userInput, contraseña: passInput }]);
       alert("¡Usuario registrado correctamente!");
     }
   };
 
+  // Función para agregar un producto al carrito
   const agregarAlCarrito = (producto) => {
+    // Agregamos el producto a la lista del carrito
     setCarrito([...carrito, producto]);
   };
 
+  // Función para quitar un producto del carrito
   const eliminarDelCarrito = (index) => {
+    // Creamos una copia del carrito actual
     const nuevo = [...carrito];
+    // Quitamos el elemento en la posición "index"
     nuevo.splice(index, 1);
+    // Guardamos el carrito sin ese elemento
     setCarrito(nuevo);
   };
 
+  // Función que filtra los productos según lo que busque el usuario
   const aplicarBusqueda = () => {
+    // Primero filtramos por categoría
     let filtrados = filtro === "todos"
-      ? productos
-      : productos.filter(p => p.categoria === filtro);
+      ? productos // Si seleccionó "todos", mostramos todos los productos
+      : productos.filter(p => p.categoria === filtro); // Si no, solo los de esa categoría
 
+    // Después filtramos por lo que escribió en la búsqueda
     let resultados = filtrados.filter(p =>
-      p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+      p.nombre.toLowerCase().includes(busqueda.toLowerCase()) // Convertimos a minúsculas para comparar mejor
     );
 
+    // Guardamos los productos que quedaron después de filtrar
     setProductosFiltrados(resultados);
   };
 
+  // Función para agregar un comentario
   const agregarComentario = (e) => {
-    e.preventDefault();
-    if (comentarioInput.trim()) {
+    e.preventDefault(); // Evita que la página se recargue cuando envía el formulario
+    if (comentarioInput.trim()) { // trim() quita los espacios al inicio y final
+      // Agregamos el comentario a la lista
       setComentarios([...comentarios, comentarioInput.trim()]);
+      // Limpiamos la caja de texto
       setComentarioInput("");
     }
   };
 
+  // Calculamos el total del carrito sumando los precios de todos los productos
   const total = carrito.reduce((acc, p) => acc + p.precio, 0);
 
+  // Aquí empieza lo que se ve en la página (el HTML)
   return (
-    <div style={{ padding: 20 }}>
-      <h1 >MomentumShoes</h1>
+    <div style={{ padding: 20 }}> {/* Un contenedor con un poco de espacio alrededor */}
+      <h1 >MomentumShoes</h1> {/* El título de la tienda */}
 
-      {/* Login y registro */}
+      {/* Sección para iniciar sesión y registrarse */}
       <div>
+        {/* Caja para escribir el nombre de usuario */}
         <input
           type="text"
-          placeholder="Usuario"
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
+          placeholder="Usuario" // Texto que aparece cuando está vacía
+          value={userInput} // Lo que está escrito ahora
+          onChange={(e) => setUserInput(e.target.value)} // Cuando escriba algo, lo guardamos
         />
+        {/* Caja para escribir la contraseña */}
         <input
-          type="password"
+          type="password" // type="password" hace que se vean puntitos en vez de letras
           placeholder="Contraseña"
           value={passInput}
           onChange={(e) => setPassInput(e.target.value)}
         />
-        <button onClick={login}>Iniciar sesión</button>
+        {/* Botones para iniciar sesión y registrarse */}
+        <button onClick={login}>Iniciar sesión</button> {/* Cuando le den clic, ejecuta la función login */}
         <button onClick={register}>Registrate</button>
-        {usuarioActual && (
+        {/* Si hay un usuario conectado, mostramos un saludo */}
+        {usuarioActual && ( // && significa "si es verdadero, entonces muestra esto"
           <p style={{ fontWeight: 'bold' }}>
             ¡Hola {usuarioActual.usuario}! Explora nuestra colección exclusiva.
           </p>
         )}
       </div>
 
-      {/* Filtros */}
-      <div style={{ marginTop: 20 }}>
+      {/* Sección de filtros y búsqueda */}
+      <div style={{ marginTop: 20 }}> {/* marginTop: 20 significa espacio arriba */}
+        {/* Caja para buscar productos por nombre */}
         <input
           type="text"
           placeholder="Buscar..."
           value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+          onChange={(e) => setBusqueda(e.target.value)} // Cada vez que escriba, actualiza la búsqueda
         />
+        {/* Lista desplegable para filtrar por categoría */}
         <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
           <option value="todos">Todos</option>
           <option value="Dama">Dama</option>
@@ -194,45 +227,49 @@ export default function Page() {
         </select>
       </div>
 
-      {/* Productos */}
+      {/* Sección donde se muestran los productos */}
       <div className="producto-grid" style={{ marginTop: 20 }}>
+        {/* map() es como decir "para cada producto en la lista, haz esto:" */}
         {productosFiltrados.map(p => (
-          <div key={p.id} className="product-card">
-            <img src={p.imagen} alt={p.nombre} className="producto-img" />
-            <h3>{p.nombre}</h3>
-            <p><strong>${p.precio}</strong></p>
-            <p>{p.descripcion}</p>
-            <button onClick={() => agregarAlCarrito(p)}>Agregar al carrito</button>
+          <div key={p.id} className="product-card"> {/* key={p.id} ayuda a React a identificar cada producto */}
+            <img src={p.imagen} alt={p.nombre} className="producto-img" /> {/* Imagen del producto */}
+            <h3>{p.nombre}</h3> {/* Nombre del producto */}
+            <p><strong>${p.precio}</strong></p> {/* Precio del producto - strong hace que se vea en negritas */}
+            <p>{p.descripcion}</p> {/* Descripción del producto */}
+            <button onClick={() => agregarAlCarrito(p)}>Agregar al carrito</button> {/* Botón para agregar al carrito */}
           </div>
         ))}
       </div>
 
-      {/* Carrito */}
+      {/* Sección del carrito de compras */}
       <h2>Carrito</h2>
       <div>
-        {carrito.map((p, i) => (
+        {/* Mostramos cada producto en el carrito */}
+        {carrito.map((p, i) => ( // i es el índice (posición) del producto en la lista
           <div key={i}>
-            {p.nombre} - ${p.precio}{" "}
-            <button onClick={() => eliminarDelCarrito(i)}>Eliminar</button>
+            {p.nombre} - ${p.precio}{" "} {/* El {" "} es un espacio */}
+            <button onClick={() => eliminarDelCarrito(i)}>Eliminar</button> {/* Botón para eliminar este producto del carrito */}
           </div>
         ))}
-        <p><strong>Total:</strong> ${total}</p>
+        <p><strong>Total:</strong> ${total}</p> {/* Mostramos el total de todos los productos */}
       </div>
 
-      {/* Comentarios */}
+      {/* Sección de comentarios */}
       <h2>Comentarios</h2>
-      <form onSubmit={agregarComentario}>
+      {/* Formulario para escribir comentarios */}
+      <form onSubmit={agregarComentario}> {/* onSubmit se ejecuta cuando presionan Enter o el botón */}
         <input
           type="text"
           placeholder="Escribe un comentario..."
           value={comentarioInput}
           onChange={(e) => setComentarioInput(e.target.value)}
         />
-        <button type="submit">Enviar</button>
+        <button type="submit">Enviar</button> {/* type="submit" hace que active el onSubmit del form */}
       </form>
+      {/* Mostramos todos los comentarios que han escrito */}
       <div>
         {comentarios.map((c, i) => (
-          <div key={i}>{c}</div>
+          <div key={i}>{c}</div> // c es el contenido del comentario, i es su posición
         ))}
       </div>
     </div>
